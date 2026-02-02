@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/static/assets/code.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversor USD → CRC</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2em;
+            animation: slideDown 0.8s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+
+        .exchange-rate {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.02);
+            }
+        }
+
+        .rate-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .rate-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .convert-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .convert-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .convert-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .result {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            display: none;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result-amount {
+            font-size: 2em;
+            color: #667eea;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .result-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+            animation: shake 0.5s ease-out;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-10px);
+            }
+
+            75% {
+                transform: translateX(10px);
+            }
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #999;
+            font-size: 0.85em;
+        }
+
+        .currency-icon {
+            display: inline-block;
+            margin: 0 5px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .loading-section {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-section p {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .icon {
+            width: 32px;
+            /* puedes probar 24px o 28px */
+            height: 32px;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1><img src="static/assets/dolar.svg" class="icon">Conversor de Divisas</h1>
+        <p class="subtitle">USD a Colones Costarricenses</p>
+
+        <div class="exchange-rate">
+            <div class="rate-label">Tipo de cambio en tiempo real</div>
+            <div class="rate-value">
+                <span class="currency-icon">$</span>
+                1 USD =
+                <span id="exchangeRate">---</span> CRC
+                <span class="currency-icon">₡</span>
+            </div>
+            <div class="rate-label" id="updateTime">Cargando...</div>
+        </div>
+
+        <div id="loading" class="loading-section">
+            <div class="spinner"></div>
+            <p>Obteniendo tipo de cambio en tiempo real...</p>
+        </div>
+
+        <div id="mainContent" style="display: none;">
+            <div class="input-group">
+                <label for="usdAmount">Monto en Dólares (USD)</label>
+                <input type="number" id="usdAmount" placeholder="Ingrese cantidad en USD" step="0.01" min="0">
+            </div>
+
+            <button class="convert-btn" onclick="convertCurrency()">
+                Convertir →
+            </button>
+
+            <div class="result" id="result">
+                <div class="result-label">Resultado de conversión</div>
+                <div class="result-amount" id="resultAmount">---</div>
+                <div class="result-label">Colones costarricenses (CRC)</div>
+            </div>
+
+            <div class="error" id="error"></div>
+
+            <div class="footer">
+                Tipo de cambio en tiempo real desde servidor Python
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentRate = 0;
+        const API_URL = '/api/exchange-rate';
+
+        async function fetchExchangeRate() {
+            const loading = document.getElementById('loading');
+            const mainContent = document.getElementById('mainContent');
+            const errorDiv = document.getElementById('error');
+            const exchangeRateSpan = document.getElementById('exchangeRate');
+            const updateTime = document.getElementById('updateTime');
+
+            try {
+                const response = await fetch(API_URL);
+
+                if (!response.ok) {
+                    throw new Error('Error al conectar con el servidor');
+                }
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    throw new Error(data.error || 'Error desconocido');
+                }
+
+                currentRate = data.rate;
+                exchangeRateSpan.textContent = currentRate.toFixed(2);
+
+                const now = new Date();
+                updateTime.textContent = `Actualizado: ${now.toLocaleTimeString('es-CR')}`;
+
+                loading.style.display = 'none';
+                mainContent.style.display = 'block';
+
+            } catch (error) {
+                loading.style.display = 'none';
+                mainContent.style.display = 'block';
+                errorDiv.textContent = `Error: ${error.message}. Asegúrate de que el servidor Python esté ejecutándose.`;
+                errorDiv.classList.add('show');
+                console.error('Error:', error);
+            }
+        }
+
+        function convertCurrency() {
+            const input = document.getElementById('usdAmount');
+            const resultDiv = document.getElementById('result');
+            const resultAmount = document.getElementById('resultAmount');
+            const errorDiv = document.getElementById('error');
+
+            errorDiv.classList.remove('show');
+            resultDiv.classList.remove('show');
+
+            const amount = parseFloat(input.value);
+
+            if (isNaN(amount) || amount < 0) {
+                errorDiv.textContent = 'Por favor, ingrese un número válido';
+                errorDiv.classList.add('show');
+                return;
+            }
+
+            const converted = amount * currentRate;
+            resultAmount.textContent = `₡ ${converted.toFixed(2)}`;
+            resultDiv.classList.add('show');
+        }
+
+        document.getElementById('usdAmount').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                convertCurrency();
+            }
+        });
+
+        window.onload = fetchExchangeRate;
+    </script>
+</body>
+
+</html>
+
+<!-- cd "C:\Users\borge\OneDrive\Documentos\Introducción a la programación\Cambio_a_dolar" -->
+<!-- venv\Scripts\activate -->
+<!--python servidor_flask.py-->
+<!--http://127.0.0.1:5000/-->
