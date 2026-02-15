@@ -4,7 +4,7 @@ import requests
 import os
 from dotenv import load_dotenv
 
-load_dotenv()  # Carga variables del archivo .env
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -42,5 +42,7 @@ def get_exchange_rate():
     except requests.exceptions.RequestException as e:
         return jsonify({"error": f"Error de conexión: {str(e)}"}), 500
 
+
 if __name__ == '__main__':
-    app.run(debug=True, host='127.0.0.1', port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)

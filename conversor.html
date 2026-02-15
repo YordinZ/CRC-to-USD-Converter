@@ -334,7 +334,9 @@
 
     <script>
         let currentRate = 0;
-        const API_URL = '/api/exchange-rate';
+
+        const API_BASE = "https://render.com/docs/troubleshooting-deploys"; // <-- pega tu URL real de Render
+        const API_URL = `${API_BASE}/api/exchange-rate`;
 
         async function fetchExchangeRate() {
             const loading = document.getElementById('loading');
@@ -368,7 +370,7 @@
             } catch (error) {
                 loading.style.display = 'none';
                 mainContent.style.display = 'block';
-                errorDiv.textContent = `Error: ${error.message}. Asegúrate de que el servidor Python esté ejecutándose.`;
+                errorDiv.textContent = `Error: ${error.message}. Verifica que tu API en Render esté activa y que la URL sea correcta.`;
                 errorDiv.classList.add('show');
                 console.error('Error:', error);
             }
@@ -391,19 +393,24 @@
                 return;
             }
 
+            if (!currentRate || currentRate <= 0) {
+                errorDiv.textContent = 'Aún no hay tipo de cambio disponible. Intenta recargar la página.';
+                errorDiv.classList.add('show');
+                return;
+            }
+
             const converted = amount * currentRate;
             resultAmount.textContent = `₡ ${converted.toFixed(2)}`;
             resultDiv.classList.add('show');
         }
 
         document.getElementById('usdAmount').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                convertCurrency();
-            }
+            if (e.key === 'Enter') convertCurrency();
         });
 
         window.onload = fetchExchangeRate;
     </script>
+
 </body>
 
 </html>
